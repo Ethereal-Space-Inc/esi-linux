@@ -227,13 +227,23 @@ systemctl enable systemd-networkd.service
 # systemctl enable systemd-resolved.service
 
 ##############################################################################
-#echo "Log: (chroot) rebuild pyyaml"
+#echo "Log: (chroot) rebuild pyyaml and pyserial"
 
 python3 -m pip install --break-system-packages \
-  --force-reinstall --no-cache-dir --no-binary pyyaml pyyaml
+  --force-reinstall --no-cache-dir --no-binary pyyaml,pyserial pyyaml pyserial
 
 ##############################################################################
 echo "Log: (chroot) add oresat device trees to /boot"
+
+KERNEL_VERSION=""
+for dir in /lib/modules/*bone[0-9]*; do
+    [ -d "$dir" ] || continue
+    KERNEL_VERSION=$(basename "$dir")
+    break
+done
+
+mkdir -p "/boot/dtbs/${KERNEL_VERSION}"
+
 dtb_dirs=(/boot/dtbs/*)
 
 # get first available dtb dir

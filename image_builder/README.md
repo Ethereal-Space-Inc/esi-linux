@@ -45,8 +45,21 @@ OreSat scripts executed at specific moments.
 
 Install dependencies
 
+For u-boot dependencies, go to [Das U-Boot: Building with GCC](https://docs.u-boot.org/en/v2025.01/build/gcc.html) and install the Debian based dependencies; Or run the following for the GCC cross compiler (for the ARMv8 architecture) and other build targets that may be needed, respectively.
+
 ```bash
-$ sudo apt install git zstd device-tree-compiler make cpp m4 gcc dosfstools kpartx wget parted tree bc
+sudo apt-get install gcc gcc-aarch64-linux-gnu
+```
+```bash
+sudo apt-get install bc bison build-essential coccinelle \
+  device-tree-compiler dfu-util efitools flex gdisk graphviz imagemagick \
+  liblz4-tool libgnutls28-dev libguestfs-tools libncurses-dev \
+  libpython3-dev libsdl2-dev libssl-dev lz4 lzma lzma-alone openssl \
+  pkg-config python3 python3-asteval python3-coverage python3-filelock \
+  python3-pkg-resources python3-pycryptodome python3-pyelftools \
+  python3-pytest python3-pytest-xdist python3-sphinxcontrib.apidoc \
+  python3-sphinx-rtd-theme python3-subunit python3-testtools \
+  python3-virtualenv swig uuid-dev
 ```
 
 Clone the oresat-linux repo
