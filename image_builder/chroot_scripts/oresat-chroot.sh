@@ -162,9 +162,46 @@ __EOF__
 ##############################################################################
 echo "Log: (chroot) enable RTC-RV3028 kernel module at boot"
 
-echo "rtc-rv3028" >> /etc/modules
+cat <<__EOF__ >"/etc/modules-load.d/rtc-rv3028.conf"
+rtc-rv3028
+__EOF__
+
+# Enable LSM only after installing hwclock; This catches a c3 full factory reset
+# rtc.h defines parameters; See the kernel's include/uapi/linux/rtc.h 
+#   Backup Switching Mode (BSM : 0x2); Modes include: Disabled(0x0), Direct(0x1), Level(0x2), Standby (0x3) 
+#       Level Switching Mode (LSM : 0x2); RTC switches to backup voltage source when main voltage source < 2.0V
+
+cat <<__EOF__ >"/etc/systemd/system/rtc-backup-mode.service"
+[Unit]
+Description=Enable RTC-RV3028 Level Switching Mode (LSM)
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+RemainAfterExit=True
+Environment=rtc_dev=/dev/rtc1 BSM=0x2 LSM=0x2 
+ExecStart=/bin/bash -c ' \
+    current=$$(hwclock --rtc=$$rtc_dev --param-get=$$BSM \
+        | grep -oE "0x[0-9a-fA-F]+" | tail -n1); \
+    [ -n "$$current" ] || { echo "RTC-RV3028 could not read mode"; exit 1; }; \
+    if (( current == LSM )); then \
+        echo "RTC-RV3028 Level Switching Mode (LSM) Active"; \
+    else \
+        hwclock --rtc=$$rtc_dev --param-set=$$BSM=$$LSM \
+        && echo "RTC-RV3028 Level Switching Mode (LSM) Enabled"; \
+    fi'
+
+[Install]
+WantedBy=multi-user.target
+Alias=rtc-bsm.service
+__EOF__
+
+#enable rtc-bsm service
+systemctl enable rtc-backup-mode.service
 
 ##############################################################################
+
 echo "Log: (chroot) setup udev rules"
 
 cat <<__EOF__ >"/etc/udev/rules.d/10-gpiochip.rules"
