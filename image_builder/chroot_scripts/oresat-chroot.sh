@@ -169,14 +169,14 @@ __EOF__
 # add config
 cat <<__EOF__ >"/etc/systemd/system/rtc-mode.service"
 [Unit]
-Description=Enable RTC-Rv3028 Level Switching Mode (LSM)
+Description=Enable RTC-RV3028 Level Switching Mode (LSM)
 
 [Service]
 Type=oneshot
 User=root
 Group=root
 RemainAfterExit=True
-ExecStart=/bin/bash/rtc_mode.sh
+ExecStart=/opt/scripts/rtc_mode.sh
 
 [Install]
 WantedBy=multi-user.target
